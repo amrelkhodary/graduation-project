@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartJobAssistant.APIS", "SmartJobAssistant\SmartJobAssistant.APIS.csproj", "{5479BB90-D184-485F-94C5-548C2AF6C9FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartJobAssistant.Core", "SmartJobAssistant.Core\SmartJobAssistant.Core.csproj", "{49021F26-E872-4CED-BCEA-86D99F1FCCC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartJobAssistant.Repository", "SmartJobAssistant.Repository\SmartJobAssistant.Repository.csproj", "{5207152C-D6F7-4FF5-A9E0-310DCA1FFE00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartJobAssistant.Services", "SmartJobAssistant.Services\SmartJobAssistant.Services.csproj", "{7219F74C-E85F-4CCD-BAC6-A85D68CFF6FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5479BB90-D184-485F-94C5-548C2AF6C9FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5479BB90-D184-485F-94C5-548C2AF6C9FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5479BB90-D184-485F-94C5-548C2AF6C9FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5479BB90-D184-485F-94C5-548C2AF6C9FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49021F26-E872-4CED-BCEA-86D99F1FCCC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49021F26-E872-4CED-BCEA-86D99F1FCCC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49021F26-E872-4CED-BCEA-86D99F1FCCC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49021F26-E872-4CED-BCEA-86D99F1FCCC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5207152C-D6F7-4FF5-A9E0-310DCA1FFE00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5207152C-D6F7-4FF5-A9E0-310DCA1FFE00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5207152C-D6F7-4FF5-A9E0-310DCA1FFE00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5207152C-D6F7-4FF5-A9E0-310DCA1FFE00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7219F74C-E85F-4CCD-BAC6-A85D68CFF6FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7219F74C-E85F-4CCD-BAC6-A85D68CFF6FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7219F74C-E85F-4CCD-BAC6-A85D68CFF6FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7219F74C-E85F-4CCD-BAC6-A85D68CFF6FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {484786E3-D393-4C66-95F0-33C8BD33C97E}
+	EndGlobalSection
+EndGlobal

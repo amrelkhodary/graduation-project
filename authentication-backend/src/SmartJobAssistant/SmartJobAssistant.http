@@ -1,0 +1,6 @@
+@SmartJobAssistant_HostAddress = http://localhost:5163
+
+GET {{SmartJobAssistant_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
