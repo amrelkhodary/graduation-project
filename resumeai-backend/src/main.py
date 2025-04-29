@@ -88,7 +88,8 @@ app = FastAPI(
     Built with FastAPI, Google's Gemini AI and LaTeX.
     """,
     version="3.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    root_path="/api/resume-flow"
 )
 
 # Create API Key Header dependency
