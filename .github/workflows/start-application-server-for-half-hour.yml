@@ -1,0 +1,69 @@
+name: Turn on Application Server for half an hour
+
+on:
+  workflow_dispatch:    # Only enabled from the Actions UI "Run workflow" button
+
+env:
+  AWS_REGION: us-east-1      # Set your AWS region, or make this an input
+  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }} # Must be set at the environment level
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: aws   # <<< Associate this job with the 'production' environment
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+        
+    - name: Start EC2 if stopped and wait for SSH
+      run: |
+        set -e
+        INSTANCE_STATE=$(aws ec2 describe-instances \
+          --instance-ids $EC2_INSTANCE_ID \
+          --query 'Reservations[0].Instances[0].State.Name' \
+          --output text)
+
+        if [ "$INSTANCE_STATE" != "running" ]; then
+          echo "Starting EC2 instance $EC2_INSTANCE_ID..."
+          aws ec2 start-instances --instance-ids $EC2_INSTANCE_ID
+          echo "Waiting for EC2 to enter 'running' state..."
+          aws ec2 wait instance-running --instance-ids $EC2_INSTANCE_ID
+        else
+          echo "EC2 instance is already running."
+        fi
+
+        # Get the public DNS of the instance
+        PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $EC2_INSTANCE_ID \
+          --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
+
+        echo "Waiting for SSH to be available on $PUBLIC_DNS:22..."
+        for attempt in {1..30}; do
+          if nc -w 3 -z "$PUBLIC_DNS" 22; then
+            echo "SSH is up!"
+            break
+          fi
+          echo "Attempt $attempt: SSH not up yet, sleeping 5s..."
+          sleep 5
+        done
+
+        # Fail if SSH is still not available after the loop
+        nc -w 3 -z "$PUBLIC_DNS" 22 || (echo "SSH did not become available in time." && exit 1)
+
+    - name: Wait for 30 minutes
+      run: sleep 180
+
+    - name: Stop EC2 instance
+      if: always() # Ensures this runs even if a previous step failed
+      run: |
+        echo "Stopping EC2 instance $EC2_INSTANCE_ID..."
+        aws ec2 stop-instances --instance-ids $EC2_INSTANCE_ID
+        echo "EC2 instance stop initiated."
