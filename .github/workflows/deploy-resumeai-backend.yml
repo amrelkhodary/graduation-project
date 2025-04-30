@@ -1,0 +1,70 @@
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:    # Only enabled from the Actions UI "Run workflow" button
+
+env:
+  AWS_REGION: us-east-1      # Set your AWS region, or make this an input
+  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }} # Must be set at the environment level
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: aws   # <<< Associate this job with the 'production' environment
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Start EC2 if stopped
+      run: |
+        INSTANCE_STATE=$(aws ec2 describe-instances \
+          --instance-ids $EC2_INSTANCE_ID \
+          --query 'Reservations[0].Instances[0].State.Name' \
+          --output text)
+        if [ "$INSTANCE_STATE" != "running" ]; then
+          echo "Starting EC2 instance $EC2_INSTANCE_ID..."
+          aws ec2 start-instances --instance-ids $EC2_INSTANCE_ID
+          echo "Waiting for EC2 to enter 'running' state..."
+          aws ec2 wait instance-running --instance-ids $EC2_INSTANCE_ID
+        else
+          echo "EC2 instance is already running."
+        fi
+
+
+    - name: Get EC2 Public DNS
+      id: get_ec2_dns
+      run: |
+        INSTANCE_DETAILS=$(aws ec2 describe-instances --instance-ids $EC2_INSTANCE_ID --query 'Reservations[0].Instances[0]')
+        PUBLIC_DNS=$(echo $INSTANCE_DETAILS | jq -r '.PublicDnsName')
+        echo "EC2_PUBLIC_DNS=$PUBLIC_DNS" >> $GITHUB_ENV
+
+    - name: Add SSH key
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+        chmod 600 ec2_key.pem
+
+    # ---------------------
+    # INSERT YOUR TRANSFER/SERVICE RELOAD CODE HERE:
+    #
+    # For example, to copy the 'my-directory' folder to home directory on EC2, and reload a systemd service:
+    #
+    - name: Copy files and reload service on EC2
+      run: |
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r resumeai-backend/src/* ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }}:/home/${{ secrets.EC2_SSH_USER }}/resume-ai-api/
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} \
+        'sudo systemctl daemon-reload && sudo systemctl restart resumeai-api.service'
+
+    - name: Stop EC2 instance after deployment
+      if: always() # Ensures this runs even if a previous step failed
+      run: |
+        echo "Stopping EC2 instance $EC2_INSTANCE_ID..."
+        aws ec2 stop-instances --instance-ids $EC2_INSTANCE_ID
+        echo "EC2 instance stop initiated."
