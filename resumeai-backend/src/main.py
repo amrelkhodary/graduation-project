@@ -193,8 +193,8 @@ async def create_resume(request: CreateResumeRequest):
     # Fix: Access Pydantic model attributes using dot notation
     request = json.loads(request.model_dump_json())
     logger.debug(f"Request information dump: {request}")
-    user_id = f"{request["information"]["name"].replace(" ", '')}-" + strftime("%Y%m%d-%H%M%S")
-
+    user_id = f"{request['information']['name'].replace(' ', '')}-" + strftime("%Y%m%d-%H%M%S")
+    
     output_dir = Path("generated_resumes")
     output_dir.mkdir(exist_ok=True)
     
