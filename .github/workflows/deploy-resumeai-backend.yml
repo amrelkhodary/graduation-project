@@ -62,6 +62,21 @@ jobs:
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} \
         'sudo systemctl daemon-reload && sudo systemctl restart resumeai-api.service'
 
+    - name: Set up fresh Python virtualenv and install dependencies on EC2
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} "
+          set -e
+          cd ~/resume-ai-api
+          if [ -d venv ]; then
+            rm -rf venv
+          fi
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install gunicorn
+        "
+
     - name: Stop EC2 instance after deployment
       if: always() # Ensures this runs even if a previous step failed
       run: |
