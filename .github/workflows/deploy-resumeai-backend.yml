@@ -75,8 +75,9 @@ jobs:
     #
     # For example, to copy the 'my-directory' folder to home directory on EC2, and reload a systemd service:
     #
-    - name: Copy files and reload service on EC2
+    - name: Delete old files, Copy new ones and reload service on EC2
       run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} "rm -rf /home/${{ secrets.EC2_SSH_USER }}/resume-ai-api/*"
         scp -i ec2_key.pem -o StrictHostKeyChecking=no -r resumeai-backend/src/* ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }}:/home/${{ secrets.EC2_SSH_USER }}/resume-ai-api/
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} \
         'sudo systemctl daemon-reload && sudo systemctl restart resumeai-api.service'
