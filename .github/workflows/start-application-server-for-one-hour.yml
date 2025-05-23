@@ -1,4 +1,4 @@
-name: Turn on Application Server for half an hour
+name: Turn on Application Server for an hour
 
 on:
   workflow_dispatch:    # Only enabled from the Actions UI "Run workflow" button
