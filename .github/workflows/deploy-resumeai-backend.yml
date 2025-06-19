@@ -96,10 +96,3 @@ jobs:
           pip install -r requirements.txt
           pip install gunicorn
         "
-
-    - name: Stop EC2 instance after deployment
-      if: always() # Ensures this runs even if a previous step failed
-      run: |
-        echo "Stopping EC2 instance $EC2_INSTANCE_ID..."
-        aws ec2 stop-instances --instance-ids $EC2_INSTANCE_ID
-        echo "EC2 instance stop initiated."
