@@ -58,12 +58,3 @@ jobs:
         # Fail if SSH is still not available after the loop
         nc -w 3 -z "$PUBLIC_DNS" 22 || (echo "SSH did not become available in time." && exit 1)
 
-    - name: Wait for 120 minutes
-      run: sleep 7200
-
-    - name: Stop EC2 instance
-      if: always() # Ensures this runs even if a previous step failed
-      run: |
-        echo "Stopping EC2 instance $EC2_INSTANCE_ID..."
-        aws ec2 stop-instances --instance-ids $EC2_INSTANCE_ID
-        echo "EC2 instance stop initiated."
