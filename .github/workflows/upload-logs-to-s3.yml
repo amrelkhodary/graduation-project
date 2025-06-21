@@ -22,6 +22,7 @@ jobs:
         aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+        s3-uri: ${{ secrets.S3_URI }}
         
     - name: Start EC2 if stopped and wait for SSH
       run: |
@@ -73,4 +74,4 @@ jobs:
 
     - name: Upload the logs to S3
       run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} "aws s3 cp /home/ubuntu/resume-ai-api/logs/* s3://resumeai-application-logs/logs/logfile"
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} "aws s3 cp /home/ubuntu/resume-ai-api/logs/* ${{ secrets.S3_URI }}"
