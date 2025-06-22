@@ -96,3 +96,6 @@ jobs:
           pip install -r requirements.txt
           pip install gunicorn
         "
+        
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_SSH_USER }}@${{ env.EC2_PUBLIC_DNS }} \
+        'sudo systemctl daemon-reload && sudo systemctl restart resumeai-api.service'
