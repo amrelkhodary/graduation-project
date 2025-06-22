@@ -225,6 +225,55 @@ class ResumeTexGenerator:
         # Cleaning up auxiliary files
         subprocess.run(['latexmk', '-C'], cwd=self.output_dir, check=True)
         os.remove(self.filled_tex_file)
+    
+    
+def escape_latex(text):
+    """
+    Escape special LaTeX characters in a string.
+    """
+    if not isinstance(text, str):
+        text = str(text)
+    
+    # Dictionary of LaTeX special characters and their escaped versions
+    latex_special_chars = {
+        '\\': r'\textbackslash{}',
+        '{': r'\{',
+        '}': r'\}',
+        '$': r'\$',
+        '&': r'\&',
+        '%': r'\%',
+        '#': r'\#',
+        '^': r'\textasciicircum{}',
+        '_': r'\_',
+        '~': r'\textasciitilde{}',
+        '<': r'\textless{}',
+        '>': r'\textgreater{}',
+        '|': r'\textbar{}',
+    }
+    
+    # Escape each special character
+    for char, escaped in latex_special_chars.items():
+        text = text.replace(char, escaped)
+    
+    return text
+
+def escape_dict_values(data):
+    """
+    Recursively escape LaTeX special characters in dictionary values.
+    Handles nested dictionaries and lists.
+    """
+    for key, value in data.items():
+        if isinstance(value, str):
+            data[key] = escape_latex(value)
+        elif isinstance(value, dict):
+            escape_dict_values(value)
+        elif isinstance(value, list):
+            for i, listItem in enumerate(value):
+                if isinstance(value[i], str):
+                    data[key][i] = escape_latex(listItem)
+                elif isinstance(listItem, dict):
+                    escape_dict_values(listItem)
+
         
 def main():
     # Example usage
@@ -250,7 +299,7 @@ def main():
     ],
     "projects": [
         {
-        "description": "Project description",
+        "description": "Project %description",
         "end_date": "2022",
         "name": "Project Name",
         "skills": "Python, FastAPI, Google Gemini AI, PyTest, Pydantic"
@@ -271,16 +320,16 @@ def main():
         "Azure"
         ],
         "Programming Languages": [
-        "Python",
+        "Python%",
         "Java"
         ],
         "Tools": [
         "Git",
-        "Docker"
+        "Docke%r"
         ]
     },
     "soft_skills": [
-        "Communication",
+        "Communication%",
         "Problem Solving"
     ],
     "output_format": "pdf"
@@ -289,9 +338,12 @@ def main():
     generator = ResumeTexGenerator(request)
     print("Generated LaTeX content!")
     print()
-    print(generator.soup.find_all('sectionPlaceholder'))
-    #pdf_file = generator.generate_pdf()
-    #print(f"PDF generated at: {pdf_file}")
+    escape_dict_values(request)
+    print("Escaped request payload:")
+    print(request)
+    generator.generate_pdf()
+    print("PDF generated successfully!")
+    generator.cleanup()
     
     
 if __name__ == "__main__":
