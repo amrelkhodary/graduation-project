@@ -352,16 +352,14 @@ async def create_resume(
         request_dict = json.loads(user_data.model_dump_json())
         logger.debug(f"Request information dump: {request_dict}")
         
+        resume_generator = ResumeTexGenerator(request=request_dict)
         if request_dict['output_format'] == "tex":
-            resume_generator = ResumeTexGenerator(request=request_dict)
             tex_content = resume_generator.generate_tex()
             logger.info(f"Tex generated successfully for user {api_key_manager.get_user_from_api_key(api_key)['username']}")
                 
             return CreateResumeResponse(pdf_file=None, tex_file=tex_content)
             
-        elif request_dict['output_format'] == "pdf":
-            resume_generator = ResumeTexGenerator(request=request_dict)
-            
+        elif request_dict['output_format'] == "pdf":            
             try:
                 pdf_path = resume_generator.generate_pdf()
                 pdf_content = pdf_path.read_bytes()
@@ -378,7 +376,6 @@ async def create_resume(
                     detail=f"PDF compilation failed"
                 )
         elif request_dict['output_format'] == "both":
-            resume_generator = ResumeTexGenerator(request=request_dict)
             tex_content = resume_generator.generate_tex()
 
             # Compile PDF 
@@ -392,6 +389,7 @@ async def create_resume(
                     
             except subprocess.CalledProcessError as e:
                 logger.error(f"LaTeX compilation failed for user {api_key_manager.get_user_from_api_key(api_key)['username']}: {e.stderr.decode()}")
+                
                 raise HTTPException(
                     status_code=500,
                     detail=f"PDF compilation failed"
@@ -406,7 +404,7 @@ async def create_resume(
         raise
     except Exception as e:
         logger.error(f"Error generating resume for user {api_key_manager.get_user_from_api_key(api_key)['username']}: {str(e)}")
-        resume_generator.cleanup()  # Ensure cleanup on error
+        # resume_generator.cleanup()  # Ensure cleanup on error
         raise HTTPException(
             status_code=500,
             detail=f"Error generating resume\nPlease report this issue to the developers."
